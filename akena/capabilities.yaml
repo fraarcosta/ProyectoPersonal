@@ -1,0 +1,117 @@
+# capabilities.yaml — SSOT: infrastructure capabilities contract
+# Layer 2 ↔ Layer 3 contract: capability name → env vars → adapters
+# Referenced by: agent.yaml, generate_config.py, shared/factory/settings.py
+# Validators: 00-platform-tooling/cli/validate_factory.py
+
+# ── Auth ─────────────────────────────────────────────────────────────────────
+auth:
+  none:
+    AUTH_VALIDATOR_TYPE: "none"
+    _required: []
+
+  cognito:
+    AUTH_VALIDATOR_TYPE: "cognito"
+    COGNITO_USER_POOL_ID: cognito_user_pool_id      # manifest key (Layer 1)
+    COGNITO_CLIENT_ID: cognito_client_id
+    COGNITO_REGION: cognito_region
+    _required: [COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID]
+
+  identity_platform:
+    AUTH_VALIDATOR_TYPE: "identity_platform"
+    IDENTITY_PLATFORM_PROJECT_ID: gcp_project_id
+    _required: [IDENTITY_PLATFORM_PROJECT_ID]
+
+# ── Conversation Memory ───────────────────────────────────────────────────────
+memory:
+  none:
+    MEMORY_STORE_TYPE: "none"
+    _required: []
+
+  local:
+    MEMORY_STORE_TYPE: "local"
+    MEMORY_LOCAL_PATH: "./.memory"                  # dev-only: JSON file store
+    _required: []
+
+  dynamodb:
+    MEMORY_STORE_TYPE: "dynamodb"
+    DYNAMODB_CONVERSATIONS_TABLE: dynamodb_conversations_table
+    DYNAMODB_REGION: aws_region
+    _required: [DYNAMODB_CONVERSATIONS_TABLE, DYNAMODB_REGION]
+
+  firestore:
+    MEMORY_STORE_TYPE: "firestore"
+    FIRESTORE_COLLECTION: "conversations"
+    FIRESTORE_PROJECT_ID: gcp_project_id
+    _required: [FIRESTORE_PROJECT_ID]
+
+# ── LLM Provider ─────────────────────────────────────────────────────────────
+llm:
+  anthropic:
+    LLM_PROVIDER_TYPE: "anthropic"
+    ANTHROPIC_API_KEY: ""                           # injected via secret
+    ANTHROPIC_MODEL: "claude-haiku-4-5-20251001"
+    _required: [ANTHROPIC_API_KEY]
+
+  openai:
+    LLM_PROVIDER_TYPE: "openai"
+    OPENAI_API_KEY: ""
+    OPENAI_MODEL: "gpt-4o-mini"
+    _required: [OPENAI_API_KEY]
+
+  bedrock:
+    LLM_PROVIDER_TYPE: "bedrock"
+    BEDROCK_MODEL_ID: bedrock_model_id
+    BEDROCK_REGION: aws_region
+    _required: [BEDROCK_MODEL_ID, BEDROCK_REGION]
+
+  vertex_ai:
+    LLM_PROVIDER_TYPE: "vertex_ai"
+    VERTEX_MODEL_ID: "gemini-2.0-flash"
+    VERTEX_PROJECT_ID: gcp_project_id
+    VERTEX_LOCATION: gcp_region
+    _required: [VERTEX_PROJECT_ID, VERTEX_LOCATION]
+
+# ── Guardrails ────────────────────────────────────────────────────────────────
+guardrail:
+  none:
+    GUARDRAIL_TYPE: "none"
+    _required: []
+
+  bedrock:
+    GUARDRAIL_TYPE: "bedrock"
+    BEDROCK_GUARDRAIL_ID: bedrock_guardrail_id
+    BEDROCK_GUARDRAIL_VERSION: "DRAFT"
+    BEDROCK_REGION: aws_region
+    _required: [BEDROCK_GUARDRAIL_ID]
+
+  model_armor:
+    GUARDRAIL_TYPE: "model_armor"
+    MODEL_ARMOR_TEMPLATE_NAME: model_armor_template_name
+    VERTEX_PROJECT_ID: gcp_project_id
+    _required: [MODEL_ARMOR_TEMPLATE_NAME]
+
+# ── Knowledge Base ────────────────────────────────────────────────────────────
+knowledge_base:
+  none:
+    KB_TYPE: "none"
+    _required: []
+
+  bedrock:
+    KB_TYPE: "bedrock"
+    BEDROCK_KB_ID: bedrock_kb_id
+    BEDROCK_REGION: aws_region
+    _required: [BEDROCK_KB_ID]
+
+  vertex_ai:
+    KB_TYPE: "vertex_ai"
+    VERTEX_SEARCH_ENGINE_ID: vertex_search_engine_id
+    VERTEX_PROJECT_ID: gcp_project_id
+    _required: [VERTEX_SEARCH_ENGINE_ID]
+
+# ── MCP Client ────────────────────────────────────────────────────────────────
+mcp_client:
+  http:
+    MCP_CLIENT_TYPE: "http"
+    MCP_SERVERS: ""                                 # auto-resolved by generate_config.py
+    MCP_SERVICE_SKILLS: ""                          # auto-resolved by generate_config.py
+    _required: []

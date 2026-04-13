@@ -1,0 +1,19 @@
+{
+  "cloud": "local",
+  "environment": "dev",
+  "CONTAINER_REGISTRY": "localhost:5000",
+  "CLUSTER_NAME": "local-dev",
+  "NAMESPACE": "akena-dev",
+  "DOMAIN": "localhost",
+  "AWS_REGION": "",
+  "GCP_PROJECT_ID": "",
+  "GCP_REGION": "",
+  "COGNITO_USER_POOL_ID": "",
+  "COGNITO_CLIENT_ID": "",
+  "COGNITO_REGION": "",
+  "DYNAMODB_CONVERSATIONS_TABLE": "",
+  "BEDROCK_KB_ID": "",
+  "VERTEX_SEARCH_ENGINE_ID": "",
+  "BEDROCK_GUARDRAIL_ID": "",
+  "MODEL_ARMOR_TEMPLATE_NAME": ""
+}

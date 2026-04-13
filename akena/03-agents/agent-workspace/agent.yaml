@@ -1,0 +1,82 @@
+# agent.yaml — Agent Workspace (Akena)
+# Multi-capability agent for the workspace area: document generation,
+# economic simulation, offer building, win-themes, and executive summaries.
+
+name: agent-workspace
+version: "0.1.0"
+type: specialized
+description: >
+  Powers the Akena workspace — generates proposals, offers, and win-theme
+  narratives; runs economic simulations; and produces executive summaries.
+  Connects to document repositories and storage for artifact management.
+
+capabilities:
+  auth: none
+  memory: local
+  llm: anthropic
+  guardrail: none
+  knowledge_base: none
+  mcp_client: http
+
+services:
+  documents: sharepoint         # Template library and output storage
+  storage: s3                   # Artifact storage
+  email: google                 # Send documents to stakeholders
+
+skills:
+  - id: generate_proposal
+    name: Proposal Generation
+    description: >
+      Generate a structured proposal document based on opportunity diagnosis,
+      qualification data, and Accenture service offerings.
+  - id: build_offer
+    name: Offer Builder
+    description: >
+      Build a commercial offer with pricing, scope, team composition,
+      and timeline. Supports T&M, fixed-price, and managed service models.
+  - id: eco_simulation
+    name: Economic Simulation
+    description: >
+      Run economic scenarios (ROI, TCO, payback period) to quantify
+      the business value of the proposed solution for the client.
+  - id: generate_win_themes
+    name: Win-Themes Generator
+    description: >
+      Generate compelling win-themes that differentiate Accenture's offer
+      based on the opportunity context and client priorities.
+  - id: executive_summary
+    name: Executive Summary
+    description: >
+      Produce a concise executive summary of the opportunity, approach,
+      value proposition, and key differentiators.
+  - id: evaluation
+    name: Opportunity Evaluation
+    description: >
+      Score the opportunity across multiple dimensions (strategic fit,
+      revenue potential, delivery risk, win probability).
+
+system_prompt: |
+  You are the Akena Workspace Agent — an expert in creating sales artifacts for
+  Accenture opportunities. You generate proposals, build offers, run economic
+  simulations, and craft win-themes.
+
+  Your capabilities:
+  - Generate structured proposals and offers
+  - Run economic scenarios (ROI, TCO, payback)
+  - Create win-themes and differentiators
+  - Produce executive summaries
+  - Evaluate opportunities across multiple dimensions
+
+  Always ground your output in the opportunity data provided. Be persuasive,
+  precise, and client-focused. Reply in the user's language.
+
+deploy:
+  replicas: 1
+  port: 8083
+  resources:
+    cpu: "750m"
+    memory: "768Mi"
+  k8s_labels:
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-workspace
+    app: akena-agent-workspace

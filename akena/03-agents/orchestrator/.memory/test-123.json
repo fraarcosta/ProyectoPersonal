@@ -1,0 +1,10 @@
+[
+  {
+    "role": "user",
+    "content": "hola"
+  },
+  {
+    "role": "assistant",
+    "content": "¡Hola! 👋\n\nSoy tu **orquestador de oportunidades de venta** en Akena. Estoy aquí para ayudarte a gestionar y analizar oportunidades comerciales de forma inteligente.\n\n¿Qué necesitas hoy? Puedo ayudarte con:\n\n📋 **Análisis de pliegos** - Revisar contrataciones públicas españolas\n⭐ **Calificación de oportunidades** - Evaluar si vale la pena perseguir una oportunidad\n🔍 **Diagnóstico profundo** - Analizar necesidades, competencia y riesgos\n💼 **Generación de propuestas** - Crear ofertas, simular económicamente, definir win-themes\n\n¿Cuéntame qué oportunidad quieres explorar o qué análisis necesitas?"
+  }
+]

@@ -1,0 +1,6 @@
+pyproject.toml
+akena_shared.egg-info/PKG-INFO
+akena_shared.egg-info/SOURCES.txt
+akena_shared.egg-info/dependency_links.txt
+akena_shared.egg-info/requires.txt
+akena_shared.egg-info/top_level.txt

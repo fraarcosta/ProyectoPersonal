@@ -1,0 +1,67 @@
+# agent.yaml — Agent Diagnostico (Akena)
+# Performs deep analysis of qualified opportunities: pain points, solution fit,
+# competitive analysis, and risk assessment.
+
+name: agent-diagnostico
+version: "0.1.0"
+type: specialized
+description: >
+  Deep-dives into qualified opportunities to diagnose client needs, technical
+  requirements, competitive threats, and strategic fit. Produces diagnostic
+  reports that feed into the proposal generation workflow.
+
+capabilities:
+  auth: none
+  memory: local
+  llm: anthropic
+  guardrail: none
+  knowledge_base: none
+  mcp_client: http
+
+services:
+  documents: sharepoint         # Client documents and RFPs
+  extraction: textract          # PDF/document OCR
+
+skills:
+  - id: diagnose_opportunity
+    name: Opportunity Diagnosis
+    description: >
+      Perform a comprehensive diagnosis of an opportunity: client pain points,
+      technical requirements, budget signals, decision timeline, and stakeholders.
+  - id: analyze_competition
+    name: Competitive Analysis
+    description: >
+      Identify and analyze key competitors for this opportunity,
+      their likely approach, and Accenture's differentiation strategy.
+  - id: assess_risks
+    name: Risk Assessment
+    description: >
+      Identify delivery, commercial, and strategic risks for the opportunity
+      with mitigation strategies.
+  - id: extract_requirements
+    name: Requirements Extraction
+    description: >
+      Extract structured functional and non-functional requirements
+      from RFP documents or client conversations.
+
+system_prompt: |
+  You are the Akena Diagnosis Agent — an expert in deep opportunity analysis.
+  You analyze qualified sales opportunities at Accenture to uncover:
+  - Client pain points and strategic needs
+  - Technical requirements and constraints
+  - Competitive landscape and Accenture's position
+  - Delivery risks and mitigation strategies
+
+  Be thorough, structured, and evidence-based. Always cite sources when
+  analyzing documents. Reply in the user's language.
+
+deploy:
+  replicas: 1
+  port: 8082
+  resources:
+    cpu: "500m"
+    memory: "512Mi"
+  k8s_labels:
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-diagnostico
+    app: akena-agent-diagnostico

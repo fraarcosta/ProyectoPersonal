@@ -1,0 +1,162 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  --text-4xl: 64px;
+  --text-3xl: 40px;
+  --text-2xl: 28px;
+  --text-xl: 20px;
+  --text-base: 16px;
+  /* Extended type scale — below --text-base */
+  --text-kpi: 24px;
+  --text-lg: 15px;
+  --text-sm: 14px;
+  --text-xs: 13px;
+  --text-2xs: 12px;
+  --text-3xs: 11px;
+  --font-weight-semibold: 600;
+  --font-weight-normal: 400;
+  /* Extra bold weight — used only for brand wordmarks (Accenture, AKENA) */
+  --font-weight-bold: 700;
+  
+  /* The default background color for the application. */
+  --background: rgba(255, 255, 255, 1.00);
+  /* The default color for elements or text that appears on top of the background. */
+  --foreground: rgba(0, 0, 0, 1.00);
+  /* The background color for cards, modals, and other containers. */
+  --card: rgba(255, 255, 255, 1.00);
+  /* The default color for text or elements that appear on top of cards, modals and other background containers. */
+  --card-foreground: rgba(0, 0, 0, 1.00);
+  /* The background color for dropdowns and tooltips. */
+  --popover: rgba(255, 255, 255, 1.00);
+  /* The default color for text or elements that appear on top of dropdowns and tooltips. */
+  --popover-foreground: rgba(0, 0, 0, 1.00);
+  /* The primary color used for buttons, links, and other interactive elements. */
+  --primary: rgba(161, 0, 255, 1.00);
+  /* The default color for text or elements that appear on top of primary colored elements. */
+  --primary-foreground: rgba(255, 255, 255, 1.00);
+  /* The secondary color used for secondary(but NOT-DESTRUCTIVE) buttons and interactive elements. */
+  --secondary: rgba(0, 0, 0, 0.00);
+  /* The default color for text or elements that appear on top of secondary colored elements. */
+  --secondary-foreground: rgba(161, 0, 255, 1.00);
+  /* The muted color used for less prominent elements, such as disabled buttons or disabled text. */
+  --muted: rgba(241, 241, 239, 1.00);
+  /* The default color for text or elements that appear on top of muted colored elements. */
+  --muted-foreground: rgba(85, 85, 85, 1.00);
+  /* The accent color used for highlights, links, and other interactive elements. */
+  --accent: rgba(34, 75, 255, 1.00);
+  /* The default color for text or elements that appear on top of accent colored elements. */
+  --accent-foreground: rgba(255, 255, 255, 1.00);
+  /* The color used for background in destructive actions, such as delete buttons or error messages. */
+  --destructive: rgba(214, 13, 13, 1.00);
+  /* The default color for text or elements that appear on top of destructive colored elements. */
+  --destructive-foreground: rgba(255, 255, 255, 1.00);
+  /* The default border color for elements such as inputs, buttons, and other containers. */
+  --border: rgba(207, 207, 207, 1.00);
+  /* The default background color for input fields once the text has been filled. Should be either transparent or match the input-background. */
+  --input: rgba(255, 255, 255, 1.00);
+  /* The default background color for input fields, text areas, and other input elements. */
+  --input-background: rgba(255, 255, 255, 1.00);
+  /* The color for focus rings, outlines, and other focus indicators. */
+  --ring: rgba(161, 0, 255, 1.00);
+  /* Shadow for small elevations, such as cards or modals. */
+  --elevation-sm: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+  /* The color for chart elements, such as a bar or line in a chart. */
+  --chart-1: rgba(161, 0, 255, 1.00);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-2: rgba(34, 75, 255, 1.00);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-3: rgba(117, 0, 192, 1.00);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-4: rgba(70, 0, 115, 1.00);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-5: rgba(230, 220, 255, 1.00);
+  /* The default border radius for elements such as cards and containers. */
+  --radius: 4px;
+  /* Smaller border radius for compact icon boxes and tight UI elements. */
+  --radius-sm: 2px;
+  /* The border radius for button elements — matches MUI default (shape.borderRadius × 1). */
+  --radius-button: 4px;
+  /* The border radius for input fields, textareas and selects — matches MUI default. */
+  --radius-input: 4px;
+  /* The border radius for chip/badge elements — full pill. */
+  --radius-chip: 999px;
+  /* The border radius for inline banners and subtle info panels. */
+  --radius-banner: 4px;
+  /* The background color for sidebars, navigation menus, and other persistent elements. */
+  --sidebar: rgba(241, 241, 239, 1.00);
+  /* The default color for text or elements that appear on top of sidebars, navigation menus, and other persistent elements. */
+  --sidebar-foreground: rgba(0, 0, 0, 1.00);
+  /* The primary color used for buttons, links, and other interactive elements in sidebars and navigation menus. */
+  --sidebar-primary: rgba(161, 0, 255, 1.00);
+  /* The default color for text or elements that appear on top of primary colored elements in sidebars and navigation menus. */
+  --sidebar-primary-foreground: rgba(255, 255, 255, 1.00);
+  /* The accent color used for highlights, links, and other interactive elements in sidebars and navigation menus. */
+  --sidebar-accent: rgba(34, 75, 255, 1.00);
+  /* The default color for text or elements that appear on top of accent colored elements in sidebars and navigation menus. */
+  --sidebar-accent-foreground: rgba(255, 255, 255, 1.00);
+  /* The default border color for elements in sidebars and navigation menus. */
+  --sidebar-border: rgba(207, 207, 207, 1.00);
+  /* The default color for focus rings, outlines, and other focus indicators in sidebars and navigation menus. */
+  --sidebar-ring: rgba(161, 0, 255, 1.00);
+
+  /* ── Semantic state colors ─────────────────────────────────────────────── */
+  /* Success — positive outcomes, active states, adjudicated offers */
+  --success: rgba(22, 163, 74, 1);
+  --success-foreground: rgba(255, 255, 255, 1);
+  --success-subtle: rgba(22, 163, 74, 0.10);
+  /* Warning — review states, pending approvals */
+  --warning: rgba(234, 179, 8, 1);
+  --warning-foreground: rgba(161, 120, 0, 1);
+  --warning-subtle: rgba(234, 179, 8, 0.12);
+  /* Subtle alpha fills — for badge and chip backgrounds */
+  --primary-subtle: rgba(161, 0, 255, 0.10);
+  --accent-subtle: rgba(34, 75, 255, 0.10);
+  --destructive-subtle: rgba(214, 13, 13, 0.10);
+  --neutral-subtle: rgba(85, 85, 85, 0.10);
+  /* Online / presence indicator */
+  --online-indicator: rgba(134, 239, 172, 1);
+  /* Modal / drawer overlay backdrop */
+  --overlay: rgba(0, 0, 0, 0.45);
+  /* Frosted overlay for elements placed on top of primary-colored surfaces */
+  --overlay-content: rgba(255, 255, 255, 0.15);
+
+  /* ── On-dark surface tokens — cards/borders placed on inverted (dark) backgrounds */
+  /* Use these when a section has bgcolor: var(--foreground) or any dark surface.   */
+  --surface-on-dark-border: rgba(255, 255, 255, 0.10);
+  --surface-on-dark-bg:     rgba(255, 255, 255, 0.04);
+
+  /* ── Spacing scale — base 4 px ──────────────────────────────────────────── */
+  /* Named steps follow a 4 px grid. Use these variables everywhere instead   */
+  /* of hardcoded pixel values so the spacing system stays single-source.      */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-7:   28px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+
+  /* ── Layout dimension constants ─────────────────────────────────────────── */
+  /* Change here → propagates to every component that uses these variables.   */
+  --header-height:    56px;   /* AppHeader fixed height                      */
+  --subheader-height: 52px;   /* Sub-header strip height (workspace, pages)  */
+  --sidebar-width:    264px;  /* Workspace left navigation panel             */
+  --content-max-w:    800px;  /* Max-width for centered page layouts         */
+
+  /* ── Semantic spacing aliases ───────────────────────────────────────────── */
+  /* Build semantic names on top of the raw scale. If a section's spacing     */
+  /* needs to change, update the alias — not every usage site.                */
+  --page-px:     var(--space-8);   /* 32px — horizontal padding on full pages  */
+  --page-py:     var(--space-8);   /* 32px — vertical padding on full pages    */
+  --content-px:  var(--space-10);  /* 40px — workspace content panel H-padding */
+  --content-py:  var(--space-8);   /* 32px — workspace content panel V-padding */
+  --section-gap: var(--space-6);   /* 24px — between major page sections       */
+  --banner-px:   var(--space-4);   /* 16px — inline banner/alert H-padding     */
+  --banner-py:   var(--space-3);   /* 12px — inline banner/alert V-padding     */
+}

@@ -1,0 +1,161 @@
+Añadir “Listado de fórmulas detectadas” en Configuración y Simulación Económica
+🎯 Objetivo
+
+Mejorar la funcionalidad de Configuración y Simulación de la fórmula económica añadiendo una tercera vía de selección de fórmulas:
+
+Extracción automática (ya existe)
+
+Subida de imagen (ya existe)
+
+✅ Nueva: Selección desde listado de fórmulas detectadas en el pliego
+
+📍 Ubicación en la interfaz
+
+Dentro de:
+
+Línea económica → Configuración y simulación → Bloque de configuración de fórmula
+
+Añadir en la parte superior derecha del bloque (junto al botón “Extraer”):
+
+👉 Botón nuevo:
+“Ver fórmulas detectadas”
+
+Diseño:
+
+Botón secundario
+
+Icono tipo lista o documento
+
+Tooltip:
+
+“Ver todas las fórmulas detectadas en el pliego y añadirlas a la configuración.”
+
+🧩 Comportamiento del botón
+1️⃣ Apertura de pop-up
+
+Al clicar el botón:
+
+Se abre un modal centrado (no lateral) con scroll interno.
+
+Título:
+“Fórmulas detectadas en el pliego”
+
+2️⃣ Contenido del pop-up
+
+Mostrar un listado de todas las fórmulas que el sistema ha detectado automáticamente en el pliego.
+
+Cada fórmula debe mostrarse como una card seleccionable con:
+
+Checkbox (selección múltiple)
+
+Fórmula económica (texto)
+
+Presupuesto asociado (€)
+
+Puntuación máxima (puntos)
+
+Condiciones de baja temeraria (si existen)
+
+Observaciones (si existen)
+
+Opcional:
+
+Fuente aproximada (ej: “Pliego técnico – pág. 45”)
+
+3️⃣ Selección múltiple
+
+El usuario puede seleccionar una o varias fórmulas (checkboxes).
+
+No limitar a una sola → permitir múltiples.
+
+4️⃣ Botones del pop-up
+
+En la parte inferior:
+
+“Añadir fórmulas seleccionadas” (primario)
+
+“Cancelar”
+
+5️⃣ Acción al añadir
+
+Cuando el usuario pulsa “Añadir fórmulas seleccionadas”:
+
+🔹 Comportamiento:
+
+Se cierra el pop-up
+
+Aparece un mensaje (toast verde):
+
+“Fórmulas añadidas correctamente.”
+
+En la pantalla principal (configuración):
+
+👉 Se crean automáticamente nuevos bloques de fórmula económica, uno por cada fórmula seleccionada.
+
+Cada bloque incluirá:
+
+Fórmula económica
+
+Presupuesto
+
+Puntuación
+
+Baja temeraria
+
+Observaciones
+
+Todos los campos:
+
+Autorrellenados
+
+Editables
+
+6️⃣ Reglas importantes
+
+No sustituye la extracción automática → es complemento.
+
+No sustituye la subida de imagen → es alternativa adicional.
+
+El usuario puede:
+
+Extraer automáticamente
+
+Añadir desde listado
+
+Añadir manualmente
+
+Subir imagen
+
+👉 Es un sistema de 3 vías combinables.
+
+7️⃣ Casos de uso clave
+
+Si el sistema detecta mal la fórmula → el usuario corrige desde listado.
+
+Si hay múltiples fórmulas → el usuario elige cuáles aplicar.
+
+Si faltan fórmulas → el usuario puede añadirlas manualmente o por imagen.
+
+8️⃣ Persistencia
+
+Las fórmulas añadidas se guardan como parte de la configuración.
+
+Si el usuario vuelve a entrar:
+
+Verá todos los bloques añadidos.
+
+No se vuelve a abrir el pop-up automáticamente.
+
+🧠 Resultado UX esperado
+
+El usuario tiene ahora 3 formas claras de obtener la fórmula:
+
+Automática (rápida)
+
+Imagen (precisa manual)
+
+Listado (controlado y visual)
+
+→ Reduce errores de extracción
+→ Aumenta control del usuario
+→ Mejora usabilidad en pliegos complejos

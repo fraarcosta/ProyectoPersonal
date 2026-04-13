@@ -1,0 +1,19 @@
+{
+  "cloud": "aws",
+  "environment": "dev",
+  "CONTAINER_REGISTRY": "",
+  "CLUSTER_NAME": "",
+  "NAMESPACE": "akena-dev",
+  "DOMAIN": "",
+  "AWS_REGION": "eu-north-1",
+  "GCP_PROJECT_ID": "",
+  "GCP_REGION": "",
+  "COGNITO_USER_POOL_ID": "",
+  "COGNITO_CLIENT_ID": "",
+  "COGNITO_REGION": "eu-north-1",
+  "DYNAMODB_CONVERSATIONS_TABLE": "",
+  "BEDROCK_KB_ID": "",
+  "VERTEX_SEARCH_ENGINE_ID": "",
+  "BEDROCK_GUARDRAIL_ID": "",
+  "MODEL_ARMOR_TEMPLATE_NAME": ""
+}

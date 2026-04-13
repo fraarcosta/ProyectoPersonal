@@ -1,0 +1,64 @@
+# agent.yaml — Agent Cualificacion (Akena)
+# Handles opportunity qualification workflow: validates criteria, scores leads,
+# generates qualification reports.
+
+name: agent-cualificacion
+version: "0.1.0"
+type: specialized
+description: >
+  Evaluates and qualifies sales opportunities. Analyzes strategic fit,
+  technical complexity, competitive landscape, and client relationship signals.
+  Produces qualification scores and detailed qualification reports.
+
+capabilities:
+  auth: none
+  memory: local
+  llm: anthropic
+  guardrail: none
+  knowledge_base: none
+  mcp_client: http
+
+services:
+  documents: sharepoint       # Access to opportunity-related documents
+
+skills:
+  - id: qualify_opportunity
+    name: Opportunity Qualification
+    description: >
+      Score and evaluate a sales opportunity against qualification criteria
+      (BANT, MEDDIC, or custom framework). Returns a qualification score
+      and detailed reasoning.
+  - id: generate_qualification_report
+    name: Qualification Report
+    description: >
+      Generate a structured qualification report for an opportunity,
+      including strengths, risks, recommended next steps.
+  - id: check_go_nogo
+    name: Go/No-Go Decision
+    description: >
+      Evaluate whether an opportunity meets the threshold to proceed.
+      Returns GO, NO-GO, or CONDITIONAL with justification.
+
+system_prompt: |
+  You are the Akena Qualification Agent — an expert in evaluating sales opportunities
+  for Accenture. You assess opportunities using structured frameworks (BANT, MEDDIC)
+  and Accenture's strategic criteria.
+
+  Your capabilities:
+  - Qualify opportunities with scoring (0-100)
+  - Generate qualification reports
+  - Make Go/No-Go recommendations
+
+  Always be analytical, data-driven, and concise. Ask for missing information
+  before making recommendations. Reply in the user's language.
+
+deploy:
+  replicas: 1
+  port: 8081
+  resources:
+    cpu: "500m"
+    memory: "512Mi"
+  k8s_labels:
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-cualificacion
+    app: akena-agent-cualificacion

@@ -1,0 +1,11 @@
+# Context for agent Docker builds (akena/03-agents)
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.mypy_cache
+**/.env
+**/.env.*
+**/.memory
+**/*.md
+.git
+.gitignore

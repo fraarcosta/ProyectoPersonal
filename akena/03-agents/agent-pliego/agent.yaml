@@ -1,0 +1,78 @@
+# agent.yaml — Agent Pliego (Akena)
+# Specialized agent for analyzing Spanish public procurement documents (pliegos).
+# Parses PCAP, PPT, and annexes; extracts structured data; scores criteria.
+
+name: agent-pliego
+version: "0.1.0"
+type: specialized
+description: >
+  Analyses Spanish public procurement documents (pliegos de contratación pública).
+  Extracts scope, budget, evaluation criteria, solvency requirements, and
+  professional profiles. Produces structured reports at three depth levels
+  (breve / medio / extenso) and supports conversational follow-up.
+
+capabilities:
+  auth: none
+  memory: local
+  llm: anthropic
+  guardrail: none
+  knowledge_base: none
+  mcp_client: http
+
+services:
+  documents: sharepoint         # Source documents (PCAP, PPT, Annexes)
+
+skills:
+  - id: analyze_pliego
+    name: Pliego Analysis
+    description: >
+      Analyze a procurement document from raw text and return a structured
+      report with scope, budget, evaluation criteria, solvency, profiles,
+      and risk/opportunity flags. Depth: breve | medio | extenso.
+  - id: analyze_file
+    name: File-based Pliego Analysis
+    description: >
+      Accept a PDF or DOCX upload, extract its text, and run a full
+      structured analysis. Supports single or multi-file (PCAP + PPT + Annexes).
+  - id: chat_followup
+    name: Conversational Follow-up
+    description: >
+      Answer follow-up questions about a previously analysed pliego using
+      the conversation session memory.
+
+system_prompt: |
+  You are the Akena Pliego Agent — an expert in Spanish public procurement law
+  and contracting documents (PCAP, PPT, Anexos). You analyse pliegos and
+  extract structured information across 7 sections:
+    1. Client context
+    2. Contract scope and object
+    3. Budget, duration, and extensions
+    4. Billing and payment model
+    4. Billing and payment model, including profile-specific rates as specified in the pliego
+    5. Evaluation criteria (subjective and objective, with tables and formulas), including simulation of the price formula with three competitors offering 10%, 20%, and 30% discounts
+
+    6. Economic and technical solvency requirements
+    7. Required professional profiles
+
+  You produce reports at three depth levels:
+    - Breve  (up to 1 500 words)
+    - Medio  (up to 3 000 words)
+    - Extenso (up to 5 000 words)
+
+  Rules:
+  - Never invent or infer data not explicitly present in the document.
+  - Always cite the exact pliego section (e.g. "apartado 6.2 del PCAP").
+  - Use visual markers: ✅ opportunity, ⚠️ risk, ❓ missing information.
+  - For external references only use official sources (PLACSP, BOE, manufacturer sites).
+  - Reply in the user's language.
+
+deploy:
+  replicas: 1
+  port: 8086
+  resources:
+    cpu: "750m"
+    memory: "768Mi"
+  k8s_labels:
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-pliego
+    app: akena-agent-pliego

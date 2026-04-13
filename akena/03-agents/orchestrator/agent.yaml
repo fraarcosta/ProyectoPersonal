@@ -1,0 +1,46 @@
+# agent.yaml — Orchestrator (Akena)
+# The developer only edits this file. Everything else is derived.
+# Run: python ../../00-platform-tooling/generate_config.py to produce config.env
+
+name: orchestrator
+version: "0.1.0"
+type: orchestrator
+description: >
+  Main decision-making agent for the Akena agentic platform.
+  Receives user requests, discovers specialized agents via K8s labels,
+  and delegates tasks using the A2A protocol.
+
+capabilities:
+  auth: none                    # dev: none | prod: cognito
+  memory: local                 # dev: local | prod: dynamodb
+  llm: anthropic
+  guardrail: none               # dev: none | prod: bedrock
+  knowledge_base: none
+  mcp_client: http
+
+services: {}                    # Orchestrator uses agents, not MCP tools directly
+
+system_prompt: |
+  You are the Akena orchestrator — an expert AI assistant for sales opportunity management
+  at Accenture. Your role is to understand user requests and delegate them to the
+  most appropriate specialized agent.
+
+  You have access to these specialized agents (auto-discovered):
+  {agent_cards}
+
+  Always:
+  - Analyze the user's intent before delegating
+  - Choose the agent whose skills best match the request
+  - Synthesize responses from multiple agents if needed
+  - Reply in the same language the user uses
+
+deploy:
+  replicas: 1
+  port: 8080
+  resources:
+    cpu: "500m"
+    memory: "512Mi"
+  k8s_labels:
+    agentic.io/agent-type: orchestrator
+    agentic.io/agent-name: orchestrator
+    app: akena-orchestrator

@@ -1,0 +1,10 @@
+[
+  {
+    "role": "user",
+    "content": "Tengo una oportunidad con un cliente bancario en Madrid, presupuesto 500K euros, plazo 6 meses. Necesito una cualificacion rapida."
+  },
+  {
+    "role": "assistant",
+    "content": "Entiendo que necesitas una cualificación rápida de esta oportunidad bancaria en Madrid. Te voy a delegarle esta tarea al agente de diagnóstico, que es el especialista en analizar y cualificar oportunidades de venta.\n\n```json\n{\n  \"delegate\": \"agent-diagnostico\",\n  \"query\": \"Realizar una cualificación rápida de oportunidad: Cliente bancario en Madrid, presupuesto 500K euros, plazo de ejecución 6 meses. Incluir diagnóstico de la oportunidad, evaluación preliminar de viabilidad y riesgos principales.\"\n}\n```\n\nEl agente-diagnostico te proporcionará un análisis integral que incluirá:\n- **Diagnóstico de oportunidad**: Evaluación general de viabilidad\n- **Identificación de riesgos**: Riesgos de entrega, comerciales y estratégicos\n- **Extracción de requisitos**: Necesidades clave del cliente bancario\n- **Recomendaciones iniciales**: Próximos pasos para avanzar\n\nEsto te dará una visión clara y rápida para decidir si continuar con esta oportunidad."
+  }
+]

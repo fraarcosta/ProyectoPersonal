@@ -1,0 +1,90 @@
+# services.yaml — SSOT: functional services catalog
+# Layer 3 ↔ Layer 4 contract: service name → MCP server → OAuth dependencies
+# Referenced by: agent.yaml, generate_config.py
+# Validators: 00-platform-tooling/cli/validate_lib_factory.py
+
+# ── Email ─────────────────────────────────────────────────────────────────────
+email:
+  google:
+    mcp_server: mcp-server-google-mdc
+    skills: [send_email, search_email, list_emails, get_email]
+    oauth:
+      provider: google
+      scopes: [gmail.send, gmail.readonly]
+    description: "Gmail email management via Google MDC MCP server"
+
+# ── Documents ─────────────────────────────────────────────────────────────────
+documents:
+  sharepoint:
+    mcp_server: mcp-server-sharepoint-mdc
+    skills: [search_documents, get_document, list_libraries, upload_document]
+    oauth:
+      provider: microsoft
+      scopes: [Sites.Read.All, Files.ReadWrite.All]
+    description: "SharePoint document library via Microsoft MDC MCP server"
+
+  google_drive:
+    mcp_server: mcp-server-google-mdc
+    skills: [search_files, get_file, list_files, create_document]
+    oauth:
+      provider: google
+      scopes: [drive.readonly, drive.file]
+    description: "Google Drive document management"
+
+# ── Document Extraction (OCR) ─────────────────────────────────────────────────
+extraction:
+  textract:
+    mcp_server: mcp-server-extraction
+    env:
+      EXTRACTION_PROVIDER: "textract"
+    skills: [extract_text, extract_tables, extract_forms]
+    description: "AWS Textract document OCR and extraction"
+
+  document_ai:
+    mcp_server: mcp-server-extraction
+    env:
+      EXTRACTION_PROVIDER: "document_ai"
+    skills: [extract_text, extract_tables, extract_forms]
+    description: "GCP Document AI extraction"
+
+# ── File Storage ──────────────────────────────────────────────────────────────
+storage:
+  s3:
+    mcp_server: mcp-server-storage
+    env:
+      STORAGE_PROVIDER: "s3"
+    skills: [upload_file, download_file, list_files, delete_file]
+    description: "AWS S3 object storage"
+
+  gcs:
+    mcp_server: mcp-server-storage
+    env:
+      STORAGE_PROVIDER: "gcs"
+    skills: [upload_file, download_file, list_files, delete_file]
+    description: "GCP Cloud Storage"
+
+# ── CRM / Sales ───────────────────────────────────────────────────────────────
+crm:
+  salesforce:
+    mcp_server: mcp-server-salesforce-openapi
+    openapi_spec: openapi/salesforce.yaml
+    skills: [query_opportunity, create_opportunity, update_opportunity, get_account]
+    description: "Salesforce CRM via OpenAPI MCP server"
+
+# ── Project Management ────────────────────────────────────────────────────────
+project_mgmt:
+  jira:
+    mcp_server: mcp-server-jira-openapi
+    openapi_spec: openapi/jira.yaml
+    skills: [search_issues, create_issue, update_issue, get_project]
+    description: "Jira project management via OpenAPI MCP server"
+
+# ── Marketing Intelligence ────────────────────────────────────────────────────
+marketing:
+  linkedin:
+    mcp_server: mcp-server-linkedin
+    skills: [search_company, get_company_insights, search_contacts]
+    oauth:
+      provider: linkedin
+      scopes: [r_organization_social, r_liteprofile]
+    description: "LinkedIn company and contact intelligence"

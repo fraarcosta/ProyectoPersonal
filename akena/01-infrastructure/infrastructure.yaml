@@ -1,0 +1,83 @@
+# infrastructure.yaml — Layer 1 ↔ Layer 2 contract
+# Maps Terraform output names (cloud-specific) → canonical bash variable names
+# Used by: manifest_exports.py, generate_config.py
+# Never reference cloud-specific output names outside this file.
+
+container_registry:
+  aws: ecr_repository_base
+  gcp: artifact_registry_base
+  canonical: CONTAINER_REGISTRY
+
+cluster_name:
+  aws: eks_cluster_name
+  gcp: gke_cluster_name
+  canonical: CLUSTER_NAME
+
+namespace:
+  aws: k8s_namespace
+  gcp: k8s_namespace
+  canonical: NAMESPACE
+
+domain:
+  aws: alb_domain
+  gcp: gateway_domain
+  canonical: DOMAIN
+
+aws_region:
+  aws: aws_region
+  gcp: null
+  canonical: AWS_REGION
+
+gcp_project_id:
+  aws: null
+  gcp: project_id
+  canonical: GCP_PROJECT_ID
+
+gcp_region:
+  aws: null
+  gcp: gcp_region
+  canonical: GCP_REGION
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+cognito_user_pool_id:
+  aws: cognito_user_pool_id
+  gcp: null
+  canonical: COGNITO_USER_POOL_ID
+
+cognito_client_id:
+  aws: cognito_client_id
+  gcp: null
+  canonical: COGNITO_CLIENT_ID
+
+cognito_region:
+  aws: aws_region
+  gcp: null
+  canonical: COGNITO_REGION
+
+# ── Memory ────────────────────────────────────────────────────────────────────
+dynamodb_conversations_table:
+  aws: dynamodb_conversations_table
+  gcp: null
+  canonical: DYNAMODB_CONVERSATIONS_TABLE
+
+# ── Knowledge Base ────────────────────────────────────────────────────────────
+bedrock_kb_id:
+  aws: bedrock_kb_id
+  gcp: null
+  canonical: BEDROCK_KB_ID
+
+vertex_search_engine_id:
+  aws: null
+  gcp: vertex_search_engine_id
+  canonical: VERTEX_SEARCH_ENGINE_ID
+
+# ── Guardrails ────────────────────────────────────────────────────────────────
+bedrock_guardrail_id:
+  aws: bedrock_guardrail_id
+  gcp: null
+  canonical: BEDROCK_GUARDRAIL_ID
+
+model_armor_template_name:
+  aws: null
+  gcp: model_armor_template_name
+  canonical: MODEL_ARMOR_TEMPLATE_NAME

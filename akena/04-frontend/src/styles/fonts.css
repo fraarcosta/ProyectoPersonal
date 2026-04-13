@@ -1,0 +1,12 @@
+/* ── Akena — Font face definitions ─────────────────────────────────────────
+ * All font faces used by the application must be declared here.
+ * Inter is the primary and only typeface used across the design system.
+ * Weights: 400 (normal), 500 (medium), 600 (semibold), 700 (bold).
+ * ────────────────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* Enforce Inter as the universal body font — everything inherits from here. */
+html, body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
