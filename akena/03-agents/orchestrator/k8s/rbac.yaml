@@ -1,0 +1,35 @@
+# Role: grants the orchestrator read access to Services and Endpoints in akena-dev.
+# Required by discovery.py to watch Services labelled agentic.io/agent-type=specialized.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: orchestrator-agent-discovery
+  namespace: akena-dev
+  labels:
+    app: akena-orchestrator
+    app.kubernetes.io/name: orchestrator
+    app.kubernetes.io/part-of: akena
+    environment: dev
+rules:
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: orchestrator-agent-discovery
+  namespace: akena-dev
+  labels:
+    app: akena-orchestrator
+    app.kubernetes.io/name: orchestrator
+    app.kubernetes.io/part-of: akena
+    environment: dev
+subjects:
+  - kind: ServiceAccount
+    name: orchestrator
+    namespace: akena-dev
+roleRef:
+  kind: Role
+  name: orchestrator-agent-discovery
+  apiGroup: rbac.authorization.k8s.io

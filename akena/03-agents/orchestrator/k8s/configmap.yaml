@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orchestrator-config
+  namespace: akena-dev
+  labels:
+    app: akena-orchestrator
+    agentic.io/agent-type: orchestrator
+    agentic.io/agent-name: orchestrator
+    app.kubernetes.io/name: orchestrator
+    app.kubernetes.io/part-of: akena
+    environment: dev
+data:
+  AGENT_NAME: "orchestrator"
+  AGENT_VERSION: "0.1.0"
+  ANTHROPIC_MODEL: "claude-haiku-4-5-20251001"
+  AUTH_VALIDATOR_TYPE: "none"
+  GUARDRAIL_TYPE: "none"
+  KB_TYPE: "none"
+  LLM_PROVIDER_TYPE: "anthropic"
+  MCP_CLIENT_TYPE: "none"
+  MEMORY_LOCAL_PATH: "/app/.memory"
+  MEMORY_STORE_TYPE: "local"
+  PORT: "8080"
+  # Kubernetes namespace used by discovery.py for the Service watcher
+  K8S_NAMESPACE: "akena-dev"
+  # Fallback registry used until the K8s Service watcher is active.
+  # Format: name=http://svc.namespace.svc.cluster.local:port  (comma-separated)
+  AGENT_REGISTRY: >-
+    agent-cualificacion=http://agent-cualificacion.akena-dev.svc.cluster.local:8080,
+    agent-diagnostico=http://agent-diagnostico.akena-dev.svc.cluster.local:8080,
+    agent-economico=http://agent-economico.akena-dev.svc.cluster.local:8080,
+    agent-oferta=http://agent-oferta.akena-dev.svc.cluster.local:8080,
+    agent-pliego=http://agent-pliego.akena-dev.svc.cluster.local:8080

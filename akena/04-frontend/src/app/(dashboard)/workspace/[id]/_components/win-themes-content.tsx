@@ -5,16 +5,18 @@
 // Persistencia colectiva por oportunidad (sin segmentación de usuario).
 // Guard de navegación: alerta modal si hay cambios sin validar.
 
-import { useState, useEffect, useMemo, useCallback, useRef, type CSSProperties } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, type CSSProperties, type ChangeEvent } from "react";
 import {
   Trophy, Sparkles, Loader2, CheckCircle2, RefreshCw,
   AlertCircle, ShieldCheck, FileDown, ChevronDown, X,
-  ListFilter, Download, Lock,
+  ListFilter, Download, Lock, Upload, FileText,
 } from "lucide-react";
 import { AppButton } from "../../../../_components/ui";
 import { getAuthUser } from "../../../../_components/auth-store";
 import { readStoredIndice, isIndiceValidated } from "./indice-content";
 import { useWorkspaceReadonly } from "./workspace-readonly-context";
+import { generateWinThemes } from "../../../../../services/winThemesService";
+import { getFiles } from "../../../../../services/pliegoFileStore";
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -671,11 +673,16 @@ export function AppWinThemesContent({
     );
   });
 
+  // Ficheros del pliego (desde el store en memoria o subidos manualmente aquí)
+  const [localFiles, setLocalFiles] = useState<File[]>(() => getFiles(oppId) ?? []);
+  const abortRef = useRef<AbortController | null>(null);
+
   // UI state
   const [generating, setGenerating]             = useState(false);
   const [justGenerated, setJustGenerated]       = useState(false);
   const [justValidatedAll, setJustValidatedAll] = useState(false);
   const [filterValue, setFilterValue]           = useState("");
+  const [generateError, setGenerateError]       = useState<string | null>(null);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [pendingNavId, setPendingNavId]         = useState<string | null>(null);
@@ -715,20 +722,48 @@ export function AppWinThemesContent({
     });
   }, [persisted, parsedSections, draftTexts]);
 
-  // Clear timers on unmount
+  // Clear timers and abort on unmount
   useEffect(() => {
     return () => {
       if (justGenTimerRef.current) clearTimeout(justGenTimerRef.current);
       if (justValidAllTimerRef.current) clearTimeout(justValidAllTimerRef.current);
+      abortRef.current?.abort();
     };
   }, []);
 
-  // ── Generate ──────────────────────────────────────────────────────────────
-  const handleGenerate = useCallback(() => {
+  // ── File upload handler (fallback cuando los ficheros no están en memoria) ──
+  const handleFileChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? []);
+    if (selected.length > 0) setLocalFiles(selected);
+    e.target.value = "";
+  }, []);
+
+  // ── Generate (llamada real al agente) ─────────────────────────────────────
+  const handleGenerate = useCallback(async () => {
+    const storedIndice = readStoredIndice(oppId);
+    if (!storedIndice) return;
+
+    if (localFiles.length === 0) {
+      setGenerateError("Adjunta los documentos del pliego (PCAP, PPT…) para generar los Win Themes.");
+      return;
+    }
+
     setGenerating(true);
     setJustGenerated(false);
+    setGenerateError(null);
 
-    setTimeout(() => {
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+
+    try {
+      const sessionId = `win-themes:${oppId}:${Date.now()}`;
+      const res = await generateWinThemes(
+        localFiles,
+        storedIndice.content,
+        sessionId,
+        abortRef.current.signal,
+      );
+
       const date = new Date().toLocaleDateString("es-ES", {
         day: "2-digit", month: "2-digit", year: "numeric",
       });
@@ -736,8 +771,7 @@ export function AppWinThemesContent({
 
       const newSections: Record<string, WinThemeSection> = {};
       for (const sec of parsedSections) {
-        const text = buildMockWinTheme(sec.id, sec.cleanTitle);
-        // Preserve validation if previously validated
+        const text = res.sections[sec.id] ?? res.sections[sec.label] ?? "";
         const prev = persisted?.sections[sec.id];
         newSections[sec.id] = {
           text,
@@ -751,12 +785,17 @@ export function AppWinThemesContent({
       saveWinThemes(oppId, store);
       setPersisted(store);
       setDraftTexts(Object.fromEntries(Object.entries(newSections).map(([id, s]) => [id, s.text])));
-      setGenerating(false);
       setJustGenerated(true);
-
       justGenTimerRef.current = setTimeout(() => setJustGenerated(false), 4000);
-    }, 2400);
-  }, [parsedSections, persisted, oppId]);
+    } catch (err: unknown) {
+      if ((err as { name?: string })?.name === "CanceledError") return;
+      const msg = (err as { response?: { data?: { detail?: string } }; message?: string })
+        ?.response?.data?.detail ?? (err as { message?: string })?.message ?? "Error al generar Win Themes.";
+      setGenerateError(msg);
+    } finally {
+      setGenerating(false);
+    }
+  }, [localFiles, oppId, parsedSections, persisted]);
 
   // ── Edit text — also clears global validation so all must be re-validated ─
   const handleTextChange = useCallback((sectionId: string, value: string) => {
@@ -943,6 +982,75 @@ export function AppWinThemesContent({
           </div>
         ) : (
           <>
+            {/* ── Ficheros del pliego ── */}
+            <div
+              style={{
+                marginBottom: "20px",
+                padding: "14px 18px",
+                borderRadius: "var(--radius-banner)",
+                background: "var(--neutral-subtle)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <FileText size={14} style={{ color: "var(--muted-foreground)", flexShrink: 0 }} />
+                <span style={{ fontSize: "var(--text-xs)", fontFamily: "inherit", fontWeight: "var(--font-weight-semibold)" as CSSProperties["fontWeight"], color: "var(--foreground)" }}>
+                  Documentos del pliego (PCAP, PPT, Anexos)
+                </span>
+              </div>
+              {localFiles.length > 0 ? (
+                <div className="flex flex-col gap-1 mb-2">
+                  {localFiles.map((f) => (
+                    <span key={f.name} style={{ fontSize: "var(--text-xs)", color: "var(--muted-foreground)", fontFamily: "inherit" }}>
+                      • {f.name}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--warning-foreground)", fontFamily: "inherit", marginBottom: "8px" }}>
+                  Los documentos no están en memoria. Adjúntalos para poder generar.
+                </p>
+              )}
+              {!isReadOnly && (
+                <label
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "6px",
+                    cursor: "pointer", fontSize: "var(--text-xs)", fontFamily: "inherit",
+                    color: "var(--primary)", fontWeight: "var(--font-weight-semibold)" as CSSProperties["fontWeight"],
+                  }}
+                >
+                  <Upload size={12} />
+                  {localFiles.length > 0 ? "Cambiar documentos" : "Adjuntar documentos"}
+                  <input
+                    type="file"
+                    accept=".pdf,.docx"
+                    multiple
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                  />
+                </label>
+              )}
+            </div>
+
+            {/* ── Error banner ── */}
+            {generateError && (
+              <div
+                className="flex items-start gap-3 mb-4"
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: "var(--radius-banner)",
+                  background: "var(--destructive-subtle)",
+                  border: "1px solid var(--destructive)",
+                  maxWidth: "680px",
+                }}
+              >
+                <AlertCircle size={14} style={{ color: "var(--destructive)", flexShrink: 0, marginTop: "1px" }} />
+                <span style={{ fontSize: "var(--text-sm)", color: "var(--destructive)", fontFamily: "inherit" }}>
+                  {generateError}
+                </span>
+              </div>
+            )}
+
             {/* ── Success flash (generation) ── */}
             {justGenerated && (
               <div
@@ -968,7 +1076,7 @@ export function AppWinThemesContent({
                 <div className="flex items-center gap-3">
                   <Loader2 size={16} className="animate-spin" style={{ color: "var(--primary)" }} />
                   <span style={{ fontSize: "var(--text-sm)", color: "var(--muted-foreground)", fontFamily: "inherit" }}>
-                    Generando Win Themes a partir de ventas, activos, innovación y base histórica…
+                    Analizando pliego y generando Win Themes por apartado… (puede tardar 1-2 min)
                   </span>
                 </div>
               ) : !isGenerated && isReadOnly ? (

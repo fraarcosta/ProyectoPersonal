@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-economico
+  namespace: akena-dev
+  labels:
+    app: akena-agent-economico
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-economico
+    app.kubernetes.io/name: agent-economico
+    app.kubernetes.io/part-of: akena
+    environment: dev
+spec:
+  type: ClusterIP
+  selector:
+    app: akena-agent-economico
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP

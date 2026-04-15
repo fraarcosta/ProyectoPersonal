@@ -52,6 +52,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/economico/, ''),
       },
+      // Proxy /api/win-themes/* → Agent Win Themes (FastAPI :8028)
+      '/api/win-themes': {
+        target: 'http://localhost:8028',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/win-themes/, ''),
+      },
     },
   },
 })

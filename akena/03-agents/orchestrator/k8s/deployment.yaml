@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator
+  namespace: akena-dev
+  labels:
+    app: akena-orchestrator
+    agentic.io/agent-type: orchestrator
+    agentic.io/agent-name: orchestrator
+    app.kubernetes.io/name: orchestrator
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/part-of: akena
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: akena-orchestrator
+  template:
+    metadata:
+      labels:
+        app: akena-orchestrator
+        agentic.io/agent-type: orchestrator
+        agentic.io/agent-name: orchestrator
+        app.kubernetes.io/name: orchestrator
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/part-of: akena
+        environment: dev
+    spec:
+      # ServiceAccount bound to the RBAC Role that allows listing/watching Services
+      serviceAccountName: orchestrator
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: orchestrator
+          image: 429104603340.dkr.ecr.eu-north-1.amazonaws.com/akena/agents:orchestrator-latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: orchestrator-config
+          env:
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: akena-secrets
+                  key: anthropic-api-key
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: memory-store
+              mountPath: /app/.memory
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: memory-store
+          emptyDir: {}
+      terminationGracePeriodSeconds: 30

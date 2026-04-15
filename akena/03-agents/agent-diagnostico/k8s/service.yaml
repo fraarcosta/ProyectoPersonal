@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-diagnostico
+  namespace: akena-dev
+  labels:
+    app: akena-agent-diagnostico
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-diagnostico
+    app.kubernetes.io/name: agent-diagnostico
+    app.kubernetes.io/part-of: akena
+    environment: dev
+spec:
+  type: ClusterIP
+  selector:
+    app: akena-agent-diagnostico
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP

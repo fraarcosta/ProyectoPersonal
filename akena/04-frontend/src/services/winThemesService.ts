@@ -1,35 +1,58 @@
 /**
  * @file /src/services/winThemesService.ts
- * @description Servicio para el microservicio Win Themes Extractor (port 8028).
+ * @description Servicio para agent-win-themes (port 8028).
  *
  * Endpoints cubiertos:
- *   POST /win-themes-extractor  — Extrae win themes por sección L1 del índice
- *
- * Estado de integración: 🟡 → ✅ (mock setTimeout reemplazado)
- * Pantalla afectada: 04 (win-themes-content.tsx)
- *
- * Nota de encoding:
- *   El Content-Type es application/x-www-form-urlencoded.
- *   Los arrays deben enviarse repitiendo la clave:
- *     licitation_ids=a&licitation_ids=b&licitation_ids=c
- *   URLSearchParams gestiona esto automáticamente con `append`.
+ *   POST /generate-win-themes  — Genera win themes por sección L1 a partir del pliego e índice
  */
 
-import { SERVICE_URLS, SERVICE_ENDPOINTS } from "../api/contracts";
-import { createApiClient, withSignal } from "./apiClient";
-import type {
-  WinThemesExtractorRequest,
-  WinThemesExtractorResponse,
-  RequestOptions,
-} from "../types/api";
+import axios from "axios";
 
-// ─── Cliente axios para este servicio ────────────────────────────────────────
+// ─── Cliente dedicado (sin Content-Type por defecto para que axios auto-detecte multipart) ──
 
-const BASE_URL: string =
-  (import.meta as unknown as { env: Record<string, string> }).env
-    ?.VITE_WIN_THEMES_URL ?? SERVICE_URLS.WIN_THEMES_EXTRACTOR;
+const client = axios.create({
+  baseURL: "/api/win-themes",
+  timeout: 180_000,
+});
 
-const client = createApiClient(BASE_URL);
+// ─── Tipos ────────────────────────────────────────────────────────────────────
+
+export interface WinThemesGenerateResponse {
+  /** Mapa sección L1 (id string) → texto de Win Themes */
+  sections: Record<string, string>;
+  agent: string;
+}
+
+// ─── API calls ────────────────────────────────────────────────────────────────
+
+/**
+ * Llama a POST /generate-win-themes con los ficheros del pliego y el índice validado.
+ * El agente analiza el pliego, extrae los criterios de valoración del PPT y genera
+ * Win Themes específicos para cada sección L1 del índice.
+ *
+ * @param files     Ficheros del pliego (PCAP, PPT, Anexos) en PDF o DOCX.
+ * @param index     Texto completo del índice validado (numeración decimal).
+ * @param sessionId ID de sesión para memoria conversacional.
+ * @param signal    AbortSignal opcional para cancelación.
+ */
+export async function generateWinThemes(
+  files: File[],
+  index: string,
+  sessionId: string,
+  signal?: AbortSignal,
+): Promise<WinThemesGenerateResponse> {
+  const form = new FormData();
+  files.forEach((f) => form.append("files", f));
+  form.append("index", index);
+  form.append("session_id", sessionId);
+
+  const { data } = await client.post<WinThemesGenerateResponse>(
+    "/generate-win-themes",
+    form,
+    { ...(signal ? { signal } : {}) },
+  );
+  return data;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Helpers de encoding

@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-pliego
+  namespace: akena-dev
+  labels:
+    app: akena-agent-pliego
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-pliego
+    app.kubernetes.io/name: agent-pliego
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/part-of: akena
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: akena-agent-pliego
+  template:
+    metadata:
+      labels:
+        app: akena-agent-pliego
+        agentic.io/agent-type: specialized
+        agentic.io/agent-name: agent-pliego
+        app.kubernetes.io/name: agent-pliego
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/part-of: akena
+        environment: dev
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: agent-pliego
+          image: 429104603340.dkr.ecr.eu-north-1.amazonaws.com/akena/agents:agent-pliego-latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: agent-pliego-config
+          env:
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: akena-secrets
+                  key: anthropic-api-key
+          resources:
+            requests:
+              cpu: "375m"
+              memory: "384Mi"
+            limits:
+              cpu: "750m"
+              memory: "768Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: memory-store
+              mountPath: /app/.memory
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: memory-store
+          emptyDir: {}
+      terminationGracePeriodSeconds: 30

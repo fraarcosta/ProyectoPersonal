@@ -1,0 +1,48 @@
+# agent.yaml — Agent Win Themes (Akena)
+# Genera Win Themes por sección del índice de la oferta técnica.
+# Requiere: índice validado + documentos del pliego (PCAP, PPT, Anexos).
+
+name: agent-win-themes
+version: "0.1.0"
+type: specialized
+description: >
+  Analiza los documentos del pliego (PCAP, PPT, Anexos) junto con el índice
+  validado de la oferta técnica y genera Win Themes específicos para cada
+  apartado. Los Win Themes son argumentos diferenciadores fundamentados en el
+  pliego que maximizan la puntuación técnica según la metodología de valoración
+  del PPT.
+
+capabilities:
+  auth: none
+  memory: local
+  llm: anthropic
+  guardrail: none
+  knowledge_base: none
+  mcp_client: http
+
+services: {}
+
+skills:
+  - id: generate_win_themes
+    name: Win Themes Generator
+    description: >
+      Analiza el pliego y el índice validado. Para cada sección L1 del índice
+      genera 3-5 argumentos diferenciadores (Win Themes) anclados en los
+      criterios de valoración del PPT para maximizar la puntuación técnica.
+
+system_prompt: |
+  Eres el Akena Win Themes Agent — experto en elaboración de ofertas técnicas
+  para licitaciones públicas españolas. Generas Win Themes específicos por
+  apartado del índice, fundamentados en el pliego real, que maximizan la
+  puntuación técnica según la metodología de valoración del PPT.
+
+deploy:
+  replicas: 1
+  port: 8028
+  resources:
+    cpu: "750m"
+    memory: "768Mi"
+  k8s_labels:
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-win-themes
+    app: akena-agent-win-themes

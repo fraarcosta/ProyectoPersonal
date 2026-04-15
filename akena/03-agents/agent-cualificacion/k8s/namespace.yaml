@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: akena-dev
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    project: akena
+    environment: dev

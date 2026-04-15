@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-oferta-config
+  namespace: akena-dev
+  labels:
+    app: akena-agent-oferta
+    agentic.io/agent-type: specialized
+    agentic.io/agent-name: agent-oferta
+    app.kubernetes.io/name: agent-oferta
+    app.kubernetes.io/part-of: akena
+    environment: dev
+data:
+  AGENT_NAME: "agent-oferta"
+  AGENT_VERSION: "0.1.0"
+  ANTHROPIC_MODEL: "claude-haiku-4-5-20251001"
+  AUTH_VALIDATOR_TYPE: "none"
+  GUARDRAIL_TYPE: "none"
+  KB_TYPE: "none"
+  LLM_PROVIDER_TYPE: "anthropic"
+  MCP_CLIENT_TYPE: "none"
+  MEMORY_LOCAL_PATH: "/app/.memory"
+  MEMORY_STORE_TYPE: "local"
+  PORT: "8080"

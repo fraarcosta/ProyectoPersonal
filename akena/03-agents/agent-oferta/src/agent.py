@@ -2,9 +2,30 @@
 Agente de análisis y generación de oferta técnica para licitaciones públicas españolas.
 Funciones: detección de incoherencias entre PCAP/PPT, generación de índice de oferta.
 """
+import asyncio
 import json
 import logging
 from shared.interfaces import LLMProviderInterface, MemoryStoreInterface
+
+# Límite de caracteres del pliego que se envía al LLM.
+# Tomamos el principio (objeto, requisitos) y el final (criterios de valoración del PPT).
+# Ambos juntos < 8 000 tokens, lejos del límite de 50 000 t/min de la organización.
+_HEAD_CHARS = 15_000
+_TAIL_CHARS = 15_000
+
+
+def _smart_truncate(text: str) -> str:
+    """Devuelve cabeza + cola del texto para capturar objeto Y criterios de valoración."""
+    total = _HEAD_CHARS + _TAIL_CHARS
+    if len(text) <= total:
+        return text
+    head = text[:_HEAD_CHARS]
+    tail = text[-_TAIL_CHARS:]
+    omitted = len(text) - total
+    logging.getLogger(__name__).warning(
+        "Pliego truncado: %d chars omitidos del centro para respetar rate limit.", omitted
+    )
+    return head + f"\n\n[... {omitted} chars omitidos ...]\n\n" + tail
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +94,23 @@ class OfertaAgent:
         self._llm = llm
         self._memory = memory
 
+    async def _llm_with_retry(self, messages: list, system: str, max_tokens: int = 4096) -> dict:
+        """Llama al LLM con reintento automático si llega rate-limit (429)."""
+        for attempt in range(3):
+            try:
+                return await self._llm.complete(
+                    messages=messages, system=system, max_tokens=max_tokens
+                )
+            except Exception as e:
+                msg = str(e)
+                if "429" in msg or "rate_limit" in msg:
+                    wait = 20 * (attempt + 1)
+                    logger.warning("Rate limit (intento %d/3), esperando %ds…", attempt + 1, wait)
+                    await asyncio.sleep(wait)
+                else:
+                    raise
+        raise RuntimeError("Rate limit persistente después de 3 intentos. Intenta de nuevo en 1 minuto.")
+
     async def detect_incoherencias(
         self,
         document_text: str,
@@ -80,12 +118,12 @@ class OfertaAgent:
         file_name: str = "",
     ) -> list:
         """Detecta incoherencias en el pliego. Retorna lista de IncoherenciaItem."""
-        user_msg = f"Analiza el siguiente pliego y detecta todas las incoherencias:\n\nFichero(s): {file_name}\n\n{document_text}"
+        safe_text = _smart_truncate(document_text)
+        user_msg = f"Analiza el siguiente pliego y detecta todas las incoherencias:\n\nFichero(s): {file_name}\n\n{safe_text}"
         messages = [{"role": "user", "content": user_msg}]
         try:
-            result = await self._llm.complete(messages=messages, system=INCOHERENCIAS_PROMPT)
+            result = await self._llm_with_retry(messages=messages, system=INCOHERENCIAS_PROMPT)
             raw = result["content"].strip()
-            # Limpiar posibles bloques de código markdown
             if raw.startswith("```"):
                 raw = raw.split("```")[1]
                 if raw.startswith("json"):
@@ -107,9 +145,10 @@ class OfertaAgent:
         file_name: str = "",
     ) -> str:
         """Genera el índice de la oferta técnica a partir del pliego."""
-        user_msg = f"Genera el índice de la oferta técnica para el siguiente pliego:\n\nFichero(s): {file_name}\n\n{document_text}"
+        safe_text = _smart_truncate(document_text)
+        user_msg = f"Genera el índice de la oferta técnica para el siguiente pliego:\n\nFichero(s): {file_name}\n\n{safe_text}"
         messages = [{"role": "user", "content": user_msg}]
-        result = await self._llm.complete(messages=messages, system=INDICE_PROMPT)
+        result = await self._llm_with_retry(messages=messages, system=INDICE_PROMPT, max_tokens=4096)
         content = result["content"]
         logger.info("generate-index: %d chars, session=%s", len(content), session_id)
         return content
