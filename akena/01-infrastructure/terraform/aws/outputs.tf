@@ -57,6 +57,23 @@ output "bedrock_guardrail_id" {
   value       = ""
 }
 
+# ── Frontend ─────────────────────────────────────────────────────────────────
+
+output "s3_bucket_name" {
+  description = "S3 bucket name for frontend assets → S3_BUCKET (deploy-frontend workflow)"
+  value       = module.frontend.bucket_name
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID → CLOUDFRONT_DISTRIBUTION_ID (deploy-frontend workflow)"
+  value       = module.frontend.cloudfront_distribution_id
+}
+
+output "cloudfront_domain_name" {
+  description = "CloudFront public URL for the frontend SPA"
+  value       = module.frontend.cloudfront_domain_name
+}
+
 # ── Diagnostic outputs (not in infrastructure.yaml contract) ─────────────────
 
 output "eks_cluster_endpoint" {

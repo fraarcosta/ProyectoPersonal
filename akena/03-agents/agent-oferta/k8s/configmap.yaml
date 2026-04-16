@@ -18,7 +18,7 @@ data:
   GUARDRAIL_TYPE: "none"
   KB_TYPE: "none"
   LLM_PROVIDER_TYPE: "anthropic"
-  MCP_CLIENT_TYPE: "none"
+  MCP_CLIENT_TYPE: "http"
   MEMORY_LOCAL_PATH: "/app/.memory"
   MEMORY_STORE_TYPE: "local"
   PORT: "8080"

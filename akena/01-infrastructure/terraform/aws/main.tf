@@ -113,3 +113,15 @@ module "cognito" {
   callback_urls = var.cognito_callback_urls
   tags          = local.common_tags
 }
+
+# ── Frontend (S3 + CloudFront) ────────────────────────────────────────────────
+# Private S3 bucket + CloudFront distribution with OAC for the Akena React SPA.
+# Custom error responses redirect 403/404 → /index.html for client-side routing.
+
+module "frontend" {
+  source = "./modules/frontend"
+
+  project     = var.project
+  environment = var.environment
+  tags        = local.common_tags
+}

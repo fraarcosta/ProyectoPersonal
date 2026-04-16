@@ -50,11 +50,11 @@ spec:
                   key: anthropic-api-key
           resources:
             requests:
-              cpu: "375m"
-              memory: "384Mi"
+              cpu: "100m"
+              memory: "128Mi"
             limits:
-              cpu: "750m"
-              memory: "768Mi"
+              cpu: "200m"
+              memory: "256Mi"
           livenessProbe:
             httpGet:
               path: /health

@@ -1,0 +1,115 @@
+# Builds the Akena frontend (Vite + React SPA) and deploys to S3 + CloudFront.
+#
+# Required GitHub Secrets:
+#   AWS_ACCESS_KEY_ID              — IAM key with S3 write + CloudFront invalidation
+#   AWS_SECRET_ACCESS_KEY
+#   S3_BUCKET                      — e.g. akena-frontend-dev
+#   CLOUDFRONT_DISTRIBUTION_ID     — e.g. E1234ABCDEFG
+#   VITE_ORCHESTRATOR_URL          — public URL of the orchestrator ALB endpoint
+#
+# Optional GitHub Secrets (leave unset to skip):
+#   VITE_API_URL                   — override base API URL (defaults to VITE_ORCHESTRATOR_URL)
+#   VITE_API_TOKEN                 — static Bearer token for CI/e2e (omit in production)
+#
+# Cache strategy (S3 + CloudFront):
+#   dist/index.html       → no-cache (browser always revalidates)
+#   dist/assets/**        → immutable, 1 year (Vite content-hashes all filenames)
+#   everything else       → 1 hour
+#
+# SPA routing:
+#   CloudFront must have a custom error page: 403/404 → /index.html (HTTP 200).
+#   This cannot be configured from this workflow; set it once in the AWS Console
+#   or via Terraform (aws_cloudfront_distribution → custom_error_response).
+
+name: Build and deploy frontend (S3 + CloudFront)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "akena/04-frontend/**"
+      - ".github/workflows/deploy-frontend.yml"
+  workflow_dispatch:
+
+env:
+  AWS_REGION: eu-north-1
+  NODE_VERSION: "20"
+  WORKING_DIR: akena/04-frontend
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Build
+        run: npm run build
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          # Injected at build time — Vite replaces import.meta.env.VITE_* at bundle time.
+          VITE_ORCHESTRATOR_URL: ${{ secrets.VITE_ORCHESTRATOR_URL }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_TOKEN: ${{ secrets.VITE_API_TOKEN }}
+          VITE_USE_MOCK_CHAT: "false"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Upload hashed assets first (long-lived cache).
+      # Vite content-hashes every file in assets/ so stale references are impossible.
+      - name: Sync hashed assets → S3 (immutable cache)
+        run: |
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }} \
+            --exclude "index.html" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --delete \
+            --no-progress
+        working-directory: ${{ env.WORKING_DIR }}
+
+      # Upload index.html last, with no-cache, so browsers always fetch the
+      # latest entry point after a new deploy.
+      - name: Upload index.html → S3 (no-cache)
+        run: |
+          aws s3 cp dist/index.html s3://${{ secrets.S3_BUCKET }}/index.html \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html; charset=utf-8" \
+            --no-progress
+        working-directory: ${{ env.WORKING_DIR }}
+
+      # Invalidate CloudFront so the new index.html is served immediately from edge.
+      # Assets don't need invalidation because their URLs change with every build.
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/index.html" "/index.html*"
+
+      - name: Deploy summary
+        run: |
+          echo "### Frontend deployed :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Bucket** | \`${{ secrets.S3_BUCKET }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Region** | \`${{ env.AWS_REGION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **CloudFront** | \`${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}\` |" >> $GITHUB_STEP_SUMMARY
